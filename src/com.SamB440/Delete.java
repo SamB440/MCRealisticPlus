@@ -85,3 +85,41 @@ public class Delete extends JavaPlugin {
 		p.playSound(loc, Sound.BLOCK_ANVIL_LAND, 1.0F, 1.0F);
 	}
 }
+
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y + 1);
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y);
+		locblock.getBlock().setType(replaceblock);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setX(x - 1);
+		locblock.getBlock().setType(replaceblock);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y + 1);
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y + 2);
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setX(x);
+		locblock.setY(y);
+		locblock.setZ(z + 1);
+		locblock.getBlock().setType(replaceblock);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y + 1);
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setZ(z - 1);
+		locblock.getBlock().setType(Material.AIR);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		locblock.setY(y);
+		locblock.getBlock().setType(replaceblock);
+		FileUtil.removeLineFromFile(strFile, locblock.toString());
+		System.out.print(locblock.getX());
+		System.out.print(locblock.getY());
+		System.out.print(locblock.getZ());
+		p.playSound(loc, Sound.BLOCK_ANVIL_LAND, 1.0F, 1.0F);
+	}
+}
