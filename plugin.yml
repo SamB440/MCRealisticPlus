@@ -1,0 +1,16 @@
+name: MCRealisticPlus
+main: com.SamB440.Main
+author: SamB440
+depend: [WorldGuard]
+version: ALPHA 1.5.0
+commands:
+  MCRealistic: 
+     description: MCRealistic commands
+     usage: /MCRealistic
+     aliases: [mcr, mcreal, mcrc]
+  MyStats:
+     description: MCRealistic stats
+     usage: /MyStats
+  Fatigue:
+     description: MCRealistic fatigue
+     usage: /Fatigue
