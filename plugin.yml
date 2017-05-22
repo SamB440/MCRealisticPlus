@@ -2,7 +2,7 @@ name: MCRealisticPlus
 main: com.SamB440.Main
 author: SamB440
 depend: [WorldGuard]
-version: ALPHA 1.5.0
+version: ALPHA 1.5.1
 commands:
   MCRealistic: 
      description: MCRealistic commands
