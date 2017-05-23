@@ -1,8 +1,10 @@
 name: MCRealisticPlus
 main: com.SamB440.Main
 author: SamB440
+authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440]
+website: http://www.islandearth.net
 depend: [WorldGuard]
-version: ALPHA 1.5.3
+version: ALPHA 1.5.4
 commands:
   MCRealistic: 
      description: MCRealistic commands
