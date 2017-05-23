@@ -558,16 +558,23 @@ public class Main extends JavaPlugin implements Listener {
 				{
 					if(args[0].equalsIgnoreCase("register"))
 					{
-						File file = new File("plugins/MCRealisticPlus/config.yml");
-						p.sendMessage(ChatColor.GREEN + "Binding to your account...");
-						getConfig().set("Server.Config.Registered.Player", p.getName());
-						getConfig().set("Server.Config.Registered.ID", p.getUniqueId().toString());
-						try {
-							getConfig().save(file);
-						} catch (IOException e) {
-							e.printStackTrace();
+						if(getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your name.") && getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your ID."))
+						{
+							File file = new File("plugins/MCRealisticPlus/config.yml");
+							p.sendMessage(ChatColor.GREEN + "Binding to your account...");
+							getConfig().set("Server.Config.Registered.Player", p.getName());
+							getConfig().set("Server.Config.Registered.ID", p.getUniqueId().toString());
+							try {
+								getConfig().save(file);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							p.sendMessage("Bound this version to " + p.getName());
 						}
-						p.sendMessage("Bound this version to " + p.getName());
+						else if(!getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your name.") && !getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your ID."))
+						{
+							p.sendMessage(ChatColor.RED + "An account is already bound to this version!");
+						}
 					}
 				}
 				if(args.length >= 1) 
@@ -617,7 +624,7 @@ public class Main extends JavaPlugin implements Listener {
 						p.sendMessage(ChatColor.GREEN + "Version: " + ChatColor.WHITE + getDescription().getVersion());
 						p.sendMessage(ChatColor.GREEN + "Website: " + ChatColor.WHITE + "http://islandearth.net");
 						p.sendMessage(ChatColor.GREEN + "Forums: " + ChatColor.WHITE + "http://forums.islandearth.net");
-						p.sendMessage(ChatColor.GREEN + "Spigot: " + ChatColor.WHITE + "Unknown");
+						p.sendMessage(ChatColor.GREEN + "Spigot: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/mcrealisticplus-1-12-support-new-immune-system.21628/");
 						p.sendMessage(ChatColor.GREEN + "Registered to: " + ChatColor.WHITE + getConfig().getString("Server.Config.Registered.Player") + " | " + getConfig().getString("Server.Config.Registered.ID"));
 						p.sendMessage(ChatColor.BLUE + "© 2012 - 2017 IslandEarth. All rights reserved.");
 					}
