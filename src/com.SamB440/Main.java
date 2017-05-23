@@ -621,8 +621,9 @@ public class Main extends JavaPlugin implements Listener {
 					}
 					if(args[0].equalsIgnoreCase("Info")) {
 						p.sendMessage(ChatColor.BLUE + "Created by SamB440");
+						p.sendMessage(ChatColor.GREEN + "Contributors: " + ChatColor.WHITE + getDescription().getAuthors());
 						p.sendMessage(ChatColor.GREEN + "Version: " + ChatColor.WHITE + getDescription().getVersion());
-						p.sendMessage(ChatColor.GREEN + "Website: " + ChatColor.WHITE + "http://islandearth.net");
+						p.sendMessage(ChatColor.GREEN + "Website: " + ChatColor.WHITE + getDescription().getWebsite());
 						p.sendMessage(ChatColor.GREEN + "Forums: " + ChatColor.WHITE + "http://forums.islandearth.net");
 						p.sendMessage(ChatColor.GREEN + "Spigot: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/mcrealisticplus-1-12-support-new-immune-system.21628/");
 						p.sendMessage(ChatColor.GREEN + "Registered to: " + ChatColor.WHITE + getConfig().getString("Server.Config.Registered.Player") + " | " + getConfig().getString("Server.Config.Registered.ID"));
