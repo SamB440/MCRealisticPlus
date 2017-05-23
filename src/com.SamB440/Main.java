@@ -78,6 +78,13 @@ public class Main extends JavaPlugin implements Listener {
 			log.info("[MCRealisticPlus] WorldGuard not found, disabling!");
 			Bukkit.getServer().getPluginManager().disablePlugin(this);
 		}
+		if(!Bukkit.getVersion().contains("1.12"))
+		{
+			log.info("==================================");
+			log.info("MCRealisticPlus currently only supports 1.12! Disabling.");
+			log.info("==================================");
+			Bukkit.getServer().getPluginManager().disablePlugin(this);
+		}
 		log.info("[MCRealisticPlus] Creating everything you need!");
 		getConfig().options().copyDefaults(true);
 		AddConfig();
