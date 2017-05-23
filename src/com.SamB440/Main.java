@@ -152,6 +152,7 @@ public class Main extends JavaPlugin implements Listener {
                             TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Very Tired")));
                             pl.damage(3.0);
                             pl.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 1));
+		            pl.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
                         }
                         if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) {
                             TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Tired")));
