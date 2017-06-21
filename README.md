@@ -1,3 +1,3 @@
 # MCRealisticPlus
 An (almost) complete recode of MCRealistic.
-You can download the latest version on our Discord under #announcements. https://discord.gg/MkyhcCR
+Now on Spigot! https://www.spigotmc.org/resources/mcrealisticplus-1-12-support-1-000-downloads.21628/
