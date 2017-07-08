@@ -1,10 +1,10 @@
 name: MCRealisticPlus
 main: com.SamB440.Main
 author: SamB440
-authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440]
+authors: [c0mputex, CitadelCraft, markrasher123, zackerykr & AssassinsKeeper, CheB440, Chazmondo]
 website: http://www.islandearth.net
 depend: [WorldGuard]
-version: ALPHA 1.5.4
+version: ALPHA 1.5.9
 commands:
   MCRealistic: 
      description: MCRealistic commands
@@ -16,3 +16,6 @@ commands:
   Fatigue:
      description: MCRealistic fatigue
      usage: /Fatigue
+  Thirst:
+     description: MCRealistic thirst
+     usage: /Thirst
