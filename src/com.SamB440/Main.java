@@ -49,6 +49,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import com.SamB440.AdvancementAPI.FrameType;
 import com.sk89q.worldguard.bukkit.WGBukkit;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 
@@ -69,6 +70,48 @@ public class Main extends JavaPlugin implements Listener {
 	ArrayList<Player> hasdisease = new ArrayList<Player>();
 	ArrayList<Player> inregion = new ArrayList<Player>();
     private static int[] $SWITCH_TABLE$org$bukkit$Material;
+    Boolean latest;
+    AdvancementAPI api1 = AdvancementAPI.build(this, "MCRealistic")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:grass")
+    		.title("MCRealistic")
+    		.description("Welcome to the world of realistic Minecraft!");
+    AdvancementAPI api2 = AdvancementAPI.build(this, "cold")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:ice")
+    		.parent("MCRealisticPlus:MCRealistic")
+    		.title("I'm freezing!")
+    		.description("Experience the harsh north winds for the first time.");
+    AdvancementAPI api3 = AdvancementAPI.build(this, "tired")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:bed")
+    		.parent("MCRealisticPlus:MCRealistic")
+    		.title("I think I'll take a rest...")
+    		.description("Experience.. *yawn* tiredness for the first time.");
+    AdvancementAPI api4 = AdvancementAPI.build(this, "ouch")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:bone")
+    		.parent("MCRealisticPlus:MCRealistic")
+    		.title("Ouch!")
+    		.description("Break your legs.");
+    AdvancementAPI api5 = AdvancementAPI.build(this, "bandage")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:paper")
+    		.parent("MCRealisticPlus:ouch")
+    		.title("All bandaged up!")
+    		.description("Repair your legs with a bandage.");
+    AdvancementAPI api6 = AdvancementAPI.build(this, "thirst")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:glass_bottle")
+    		.parent("MCRealisticPlus:MCRealistic")
+    		.title("Desert heat")
+    		.description("Become thirsty for the first time.");
+    AdvancementAPI api7 = AdvancementAPI.build(this, "drank")
+    		.frame(FrameType.TASK)
+    		.icon("minecraft:potion")
+    		.parent("MCRealisticPlus:thirst")
+    		.title("Cooling Down")
+    		.description("Drink a bottle of water to quench your thirst.");
 	@Override
 	public void onEnable() {
 		if(Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
@@ -78,14 +121,34 @@ public class Main extends JavaPlugin implements Listener {
 			log.info("[MCRealisticPlus] WorldGuard not found, disabling!");
 			Bukkit.getServer().getPluginManager().disablePlugin(this);
 		}
-		if(!Bukkit.getVersion().contains("1.12"))
+		if(Bukkit.getVersion().contains("1.12"))
 		{
+			latest = true;
 			log.info("==================================");
-			log.info("MCRealisticPlus currently only supports 1.12! Disabling.");
+			log.info("Server is running 1.12. All features will be enabled!");
 			log.info("==================================");
-			Bukkit.getServer().getPluginManager().disablePlugin(this);
+		}
+		else if(!Bukkit.getVersion().contains("1.12"))
+		{
+			latest = false;
+			log.info("==================================");
+			log.info("Server is NOT running 1.12. Some features will be disabled!");
+			log.info("==================================");
 		}
 		log.info("[MCRealisticPlus] Creating everything you need!");
+		for(World w : Bukkit.getWorlds())
+		{
+			if(latest)
+			{
+				api1.save(w);
+				api2.save(w);
+				api3.save(w);
+				api4.save(w);
+				api5.save(w);
+				api6.save(w);
+				api7.save(w);
+			}
+		}
 		getConfig().options().copyDefaults(true);
 		AddConfig();
 		AddRecipes();
@@ -113,6 +176,17 @@ public class Main extends JavaPlugin implements Listener {
             @Override
             public void run() {
                 for (Player pl : Bukkit.getOnlinePlayers()) {
+                	for(Block b2 : getNearbyBlocks(pl.getLocation(), 10)) {
+    					if(b2.getType().equals(Material.FIRE) || b2.getType().equals(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage") == true) {
+    							pl.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
+    							TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+    							getConfig().set("Players.NearFire." + pl.getUniqueId(), true);
+    					}
+    					else if(!b2.getType().equals(Material.FIRE) || !b2.getType().equals(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage") == true)
+    					{
+    						getConfig().set("Players.NearFire." + pl.getUniqueId(), false);
+    					}
+                	}
                     if (!getConfig().getBoolean("Server.Player.Allow Fatigue")) {
                         getConfig().set("Players.Fatigue." + pl.getUniqueId(), 0);
                     }
@@ -150,6 +224,8 @@ public class Main extends JavaPlugin implements Listener {
             @Override
             public void run() {
                 for (Player pl : Bukkit.getOnlinePlayers()) {
+                	if(!(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR)))
+                	{
                     float WeightLeggings;
                     int CurrentFatigue;
                     float WeightCombined;
@@ -163,6 +239,10 @@ public class Main extends JavaPlugin implements Listener {
                         }
                         if (getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) >= 150 && getConfig().getInt("Players.Fatigue." + pl.getUniqueId()) <= 200) {
                             TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Tired")));
+                            if(latest)
+                            {
+                            	api3.grant(pl);
+                            }
                         }
                     }
                     if (!getConfig().getBoolean("Server.Weather.WeatherAffectsPlayer") && !(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR))) continue;
@@ -177,9 +257,13 @@ public class Main extends JavaPlugin implements Listener {
                                 getConfig().set("Players.IsCold." + pl.getUniqueId(), false);
                                 pl.setWalkSpeed((float)(getConfig().getDouble("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId()) - (double)(WeightCombined * 0.01f)));
                             }
-                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId())) {
+                        } else if (pl.getInventory().getBoots() == null && pl.getInventory().getChestplate() == null && !getConfig().getBoolean("Players.InTorch." + pl.getUniqueId()) && !getConfig().getBoolean("Players.NearFire." + pl.getUniqueId())) {
                             pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
                             TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cold")));
+                            if(latest)
+                            {
+                            	api2.grant(pl);
+                            }
                             CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
                             getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 10));
                             getConfig().set("Players.DefaultWalkSpeed." + pl.getPlayer().getUniqueId(), 0.123);
@@ -217,42 +301,51 @@ public class Main extends JavaPlugin implements Listener {
                     CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
                     getConfig().set("Players.Fatigue." + pl.getUniqueId(), (--CurrentFatigue));
                 }
+                }
             }
         }, 0, 400);
 	    Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 	    	@Override
 	        public void run() {
 	    		for (Player pl : Bukkit.getOnlinePlayers()) {
-	    			if (!getConfig().getBoolean("Server.Player.Thirst")) continue;
-	    			int CurrentThirst = getConfig().getInt("Players.Thirst." + pl.getUniqueId());
-	    				if (CurrentThirst <= 100 && CurrentThirst > 0) {
+	    			if (getConfig().getBoolean("Server.Player.Thirst.Enabled") && !(pl.getGameMode().equals(GameMode.CREATIVE) || pl.getGameMode().equals(GameMode.SPECTATOR)))
+	    			{
+	    				int CurrentThirst = getConfig().getInt("Players.Thirst." + pl.getUniqueId());
+	    					if (CurrentThirst <= 100 && CurrentThirst > 0) 
+	    					{
+	    						getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
+	    						pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
+	    						TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
+	    						api6.grant(pl);
+	    					}
+	    					if (CurrentThirst >= 200) 
+	    					{
+	    						pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
+	    						TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Really Thirsty")));
+	    						pl.damage(3.0);
+	    						pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 10)));
+	    						int CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
+	    						getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 20));
+	    					}
+	    					if (CurrentThirst != 0) continue;
 	    					getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	                        pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
-	                        TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Getting Thirsty")));
-	                    }
-	                    if (CurrentThirst >= 200) {
-	                        pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
-	                        TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
-	                        pl.damage(3.0);
-	                        pl.addPotionEffect((new PotionEffect(PotionEffectType.CONFUSION, 10, 2)));
-	                        int CurrentFatigue = getConfig().getInt("Players.Fatigue." + pl.getUniqueId());
-	                        getConfig().set("Players.Fatigue." + pl.getUniqueId(), (CurrentFatigue += 20));
-	                    }
-	                    if (CurrentThirst != 0) continue;
-	                    getConfig().set("Players.Thirst." + pl.getUniqueId(), (CurrentThirst + 100));
-	                    pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
-	                    TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    					pl.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    					TitleManager.sendActionBar(pl, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Little Thirsty")));
+	    				}
 	                }
 	            }
-	        }, getConfig().getInt("Server.Player.Thirst.Interval"), 0);
-	    if(getConfig().getBoolean("Server.Player.Immune_System.Enabled")) {
+	        }, 0, getConfig().getInt("Server.Player.Thirst.Interval"));
+	    if(getConfig().getBoolean("Server.Player.Immune_System.Enabled")) 
+	    {
 	    	Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 	    		@Override
 	    		public void run() {
-	    			if(Bukkit.getOnlinePlayers().size() >= getConfig().getInt("Server.Player.Immune_System.Req_Players")) {
+	    			if(Bukkit.getOnlinePlayers().size() >= getConfig().getInt("Server.Player.Immune_System.Req_Players")) 
+	    			{
 	    					int random = new Random().nextInt(getServer().getOnlinePlayers().size());
 	    					Player p = (Player) getServer().getOnlinePlayers().toArray()[random];
-		    					if(p.hasPermission("mcr.getcold") && hasdisease.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+		    					if(p.hasPermission("mcr.getcold") && hasdisease.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+		    					{
 		    						TitleManager.sendTitle(p, "", ChatColor.RED + "The disease begins to damage your body...", 200);
 		    						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
 		    						p.damage(4);
@@ -260,7 +353,8 @@ public class Main extends JavaPlugin implements Listener {
 		    						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
 		    						p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
 		    					}
-		    					else if(p.hasPermission("mcr.getcold") && hascold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+		    					else if(p.hasPermission("mcr.getcold") && hascold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+		    					{
 		    						hascold.remove(p);
 		    						hasdisease.add(p);
 		    						TitleManager.sendTitle(p, "", ChatColor.RED + "Your cold developed into a disease!", 200);
@@ -269,7 +363,8 @@ public class Main extends JavaPlugin implements Listener {
 		    						p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 0));
 		    						TitleManager.sendActionBar(p, ChatColor.GREEN + "" + ChatColor.BOLD + "TIP:" + ChatColor.WHITE + " Use medicine to fight the disease!");
 		    					}
-		    					else if(p.hasPermission("mcr.getcold") && !hascold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
+		    					else if(p.hasPermission("mcr.getcold") && !hascold.contains(p) && !(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) 
+		    					{
 		    						hascold.add(p);
 		    						TitleManager.sendTitle(p, "", ChatColor.RED + "You have caught a cold!", 200);
 		    						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
@@ -433,6 +528,10 @@ public class Main extends JavaPlugin implements Listener {
             pie.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Used_Bandage")));
             pie.getPlayer().getInventory().removeItem(new ItemStack(pie.getPlayer().getInventory().getItemInMainHand()));
             pie.getPlayer().updateInventory();
+            if(latest)
+            {
+            	api5.grant(p);
+            }
         }
         if (pie.getAction().equals(Action.RIGHT_CLICK_BLOCK) && pie.getClickedBlock().getType().equals(Material.BED_BLOCK) && getConfig().getBoolean("Server.Player.Allow Fatigue") && getConfig().getInt("Players.Fatigue." + pie.getPlayer().getUniqueId()) != 0) {
             getConfig().set("Players.Fatigue." + pie.getPlayer().getUniqueId(), 0);
@@ -520,6 +619,16 @@ public class Main extends JavaPlugin implements Listener {
 	        worlds = getConfig().getStringList("Worlds");
 			if(worlds.contains(p.getWorld().getName())) 
 			{
+				if(args.length == 0)
+				{
+					if(cmd.getName().equalsIgnoreCase("mcr") || cmd.getName().equalsIgnoreCase("mcrealistic") || cmd.getName().equalsIgnoreCase("mcrc") || cmd.getName().equalsIgnoreCase("mcreal"))
+					{
+						p.sendMessage(ChatColor.GREEN + "Usage:");
+						p.sendMessage(ChatColor.RED + "/MCRealistic");
+						p.sendMessage(ChatColor.RED + "/MCRealistic [item] [amount]");
+						p.sendMessage(ChatColor.RED + "/MCRealistic info");
+					}
+				}
 				if (cmd.getName().equalsIgnoreCase("mystats") && p.hasPermission("mcr.mystats")) 
 				{
 					if (getConfig().getBoolean("Server.Player.Allow /mystats")) {
@@ -547,16 +656,21 @@ public class Main extends JavaPlugin implements Listener {
 						p.sendMessage(ChatColor.RED + "You don't have permission to see your fatigue.");
 					}
 				}
-				if(args.length == 0) 
+				if (cmd.getName().equalsIgnoreCase("thirst") && p.hasPermission("mcr.thirst")) 
 				{
-					p.sendMessage(ChatColor.GREEN + "Usage:");
-					p.sendMessage(ChatColor.RED + "/MCRealistic");
-					p.sendMessage(ChatColor.RED + "/MCRealistic [item] [amount]");
-					p.sendMessage(ChatColor.RED + "/MCRealistic info");
+					if (getConfig().getBoolean("Server.Player.Allow /thirst")) 
+					{
+						p.sendMessage(ChatColor.GOLD + "====" + ChatColor.DARK_GREEN + "My thirst is: " + ChatColor.GREEN + getConfig().getInt(new StringBuilder("Players.Thirst.").append(p.getUniqueId()).toString()) + "/200" + ChatColor.GOLD + "====");
+						return true;
+					}
+					if (!p.hasPermission("mcr.thirst")) 
+					{
+						p.sendMessage(ChatColor.RED + "You don't have permission to see your thirst.");
+					}
 				}
 				if(args.length == 1)
 				{
-					if(args[0].equalsIgnoreCase("register"))
+					/*if(args[0].equalsIgnoreCase("register"))
 					{
 						if(getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your name.") && getConfig().getString("Server.Config.Registered.Player").equals("Please type /mcr register to bind this version to your ID."))
 						{
@@ -575,7 +689,7 @@ public class Main extends JavaPlugin implements Listener {
 						{
 							p.sendMessage(ChatColor.RED + "An account is already bound to this version!");
 						}
-					}
+					}*/
 				}
 				if(args.length >= 1) 
 				{
@@ -594,6 +708,7 @@ public class Main extends JavaPlugin implements Listener {
 								ItemStack Bandage = new ItemStack(Material.PAPER, Integer.parseInt(args[1]));
 								ItemMeta BandageItemMeta = Bandage.getItemMeta();
 								BandageItemMeta.setDisplayName(ChatColor.DARK_AQUA + "Bandage");
+								Bandage.setItemMeta(BandageItemMeta);
 								p.getInventory().addItem(Bandage);
 							}
 							if(args[0].equalsIgnoreCase("ChocolateMilk")) 
@@ -626,7 +741,6 @@ public class Main extends JavaPlugin implements Listener {
 						p.sendMessage(ChatColor.GREEN + "Website: " + ChatColor.WHITE + getDescription().getWebsite());
 						p.sendMessage(ChatColor.GREEN + "Forums: " + ChatColor.WHITE + "http://forums.islandearth.net");
 						p.sendMessage(ChatColor.GREEN + "Spigot: " + ChatColor.WHITE + "https://www.spigotmc.org/resources/mcrealisticplus-1-12-support-new-immune-system.21628/");
-						p.sendMessage(ChatColor.GREEN + "Registered to: " + ChatColor.WHITE + getConfig().getString("Server.Config.Registered.Player") + " | " + getConfig().getString("Server.Config.Registered.ID"));
 						p.sendMessage(ChatColor.BLUE + "© 2012 - 2017 IslandEarth. All rights reserved.");
 					}
 				}
@@ -703,12 +817,44 @@ public class Main extends JavaPlugin implements Listener {
                 getServer().addRecipe(SupportRecipe);*/
             }
 		//}
-    	public void AddConfig() {
+    	@SuppressWarnings("unused")
+		public void AddConfig() {
     		File file = new File("plugins/MCRealisticPlus/config.yml");
     		if(!file.exists())
     		{
     			List<String> worlds = new ArrayList<>();
     			worlds.add("world");
+    			List<String> diseases = new ArrayList<>();
+    			diseases.add("a disease");
+    			String header;
+    			String eol = System.getProperty("line.separator");
+    			header = "MCRealisticPlus Properties:" + eol;
+    			header += eol;
+    			header += "Worlds" + eol;
+    			header += "  Here you define which worlds you enable." + eol;
+    			header += eol;
+    			header += "WeatherAffectsPlayer" + eol;
+    			header += "  This option defines whether the player should be affected by the weather. Default true." + eol;
+    			header += eol;
+    			header += "Thirst" + eol;
+    			header += "  This option defines whether thirst is enabled. Default true." + eol;
+    			header += eol;
+    			header += "DisplayHungerMessage" + eol;
+    			header += "  Whether the hunger message should be shown. Default true." + eol;
+    			header += eol;
+    			header += "DisplayCozyMessage" + eol;
+    			header += "  Whether the cozy message should be shown. Default true." + eol;
+    			header += eol;
+    			header += "DisplayHurtMessage" + eol;
+    			header += "  Whether the hurt message would be shown. Default true." + eol;
+    			header += eol;
+    			header += "Weight" + eol;
+    			header += "  This option defines whether the player should be affected by weight." + eol;
+    			header += eol;
+    			header += "Realistic_Building" + eol;
+    			header += "  This option defines whether blocks will fall." + eol;
+    			header += eol;
+    			getConfig().options().header(header);
     			getConfig().addDefault("Worlds", worlds);
     			getConfig().addDefault("Server.Weather.WeatherAffectsPlayer", true);
     			getConfig().addDefault("Server.Player.Thirst", true);
@@ -724,6 +870,7 @@ public class Main extends JavaPlugin implements Listener {
     			getConfig().addDefault("Server.Player.Trees have random number of drops", true);
     			getConfig().addDefault("Server.Player.Allow /mystats", true);
     			getConfig().addDefault("Server.Player.Allow /fatigue", true);
+    			getConfig().addDefault("Server.Player.Allow /thirst", true);
     			getConfig().addDefault("Server.Player.Spawn with items", true);
     			getConfig().addDefault("Server.Player.Allow Enchanted Arrow", true);
     			getConfig().addDefault("Server.Messages.Not Tired", "&aI don't feel tired anymore..");
@@ -746,11 +893,12 @@ public class Main extends JavaPlugin implements Listener {
 	    		getConfig().addDefault("Server.Campfires.Cook_Time", 5);
 	    		getConfig().addDefault("Server.Campfires.Cannot_Place", "&c&lYou cannot place a campfire here!");
 	    		getConfig().addDefault("Server.Player.Thirst.Interval", 6000);
+	    		getConfig().addDefault("Server.Player.Thirst.Enabled", true);
 	    		getConfig().addDefault("Server.Player.Immune_System.Interval", 6000);
 	    		getConfig().addDefault("Server.Player.Immune_System.Enabled", true);
 	    		getConfig().addDefault("Server.Player.Immune_System.Req_Players", 2);
-	    		getConfig().addDefault("Server.Config.Registered.Player", "Please type /mcr register to bind this version to your name.");
-	    		getConfig().addDefault("Server.Config.Registered.ID", "Please type /mcr register to bind this version to your ID.");
+	    		/*getConfig().addDefault("Server.Config.Registered.Player", "Please type /mcr register to bind this version to your name.");
+	    		getConfig().addDefault("Server.Config.Registered.ID", "Please type /mcr register to bind this version to your ID.");*/
 	    		saveConfig();
 	    		System.out.println("[MCRealisticPlus] Created & saved config!");
     		}
@@ -772,6 +920,9 @@ public class Main extends JavaPlugin implements Listener {
     			trail.setY(trail.getY() + 0.05);
     			blockunder.setY(blockunder.getY() - 1);
     			Block b = blockunder.getBlock();
+    			Location blockabove = p.getLocation();
+    			blockabove.setY(blockabove.getY() + 10);
+    			Block ba = blockabove.getBlock();
     			if(!(p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR))) {
     				ApplicableRegionSet r;
     				r =  WGBukkit.getRegionManager(p.getWorld()).getApplicableRegions(p.getLocation());
@@ -783,7 +934,7 @@ public class Main extends JavaPlugin implements Listener {
     					if(randomNum == 5 && b.getType().equals(Material.GRASS) && getConfig().getBoolean("Server.Player.Path")) {
     						b.setType(Material.GRASS_PATH);
     					}
-    					if(randomNum == 3 && b.getType().equals(Material.SAND) && getConfig().getBoolean("Server.Player.Path")) {
+    					if(randomNum == 1 && b.getType().equals(Material.SAND) && getConfig().getBoolean("Server.Player.Path")) {
     						b.setType(Material.SANDSTONE);
     					}
     				}
@@ -798,25 +949,6 @@ public class Main extends JavaPlugin implements Listener {
     				else if (burn.contains(p.getName())) {
     					p.setFireTicks(0);
     					burn.remove(p.getName());
-    				}
-    				for(Block b2 : getNearbyBlocks(loc, getConfig().getInt("Server.Campfires.Radius"))) {
-    					if(b2.getType().equals(Material.FIRE) || b.getType().equals(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage") == true) {
-    						String strFile= "plugins/MCRealisticPlus/Blocks.txt";
-    						Boolean bool_block_present= readUUIDfile(strFile, b2.getLocation(), p);
-    						if(bool_block_present && b2.getType().equals(Material.FIRE) && !cooking.contains(p) && !campfirecreating.contains(p)) {
-    							p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
-    							p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1));
-    							TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
-    						}
-    						else if(!bool_block_present && b2.getType().equals(Material.FIRE) || b2.getType().equals(Material.FURNACE) && !cooking.contains(p) && !campfirecreating.contains(p)) {
-    							p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
-    							TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
-    						}
-    					}
-    				}
-    				if(campfirecreating.contains(p)) {
-    					pme.setCancelled(true);
-    					TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Campfires.Create_Time.Cannot_Move")));
     				}
     			}
     		}
@@ -833,11 +965,45 @@ public class Main extends JavaPlugin implements Listener {
             		TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Hungry")));
             		int CurrentFatigue = getConfig().getInt("Players.Fatigue." + p.getUniqueId());
             		getConfig().set("Players.Fatigue." + p.getUniqueId(), (++CurrentFatigue));
+        			/*
+        			 * for(Block b2 : getNearbyBlocks(loc, 10)) {
+        					if(b2.getType().equals(Material.FIRE) || b.getType().equals(Material.FURNACE) && getConfig().getBoolean("Server.Player.DisplayCozyMessage") == true) {
+        						String strFile= "plugins/MCRealisticPlus/Blocks.txt";
+        						Boolean bool_block_present= readUUIDfile(strFile, b2.getLocation(), p);
+        						if(bool_block_present && b2.getType().equals(Material.FIRE) && !cooking.contains(p) && !campfirecreating.contains(p)) {
+        							p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 1));
+        							p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 200, 1));
+        							TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+        						}
+        						else if(!bool_block_present && b2.getType().equals(Material.FIRE) || b2.getType().equals(Material.FURNACE) && !cooking.contains(p) && !campfirecreating.contains(p)) {
+        							p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0));
+        							TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Cozy")));
+        						}
+        					}
+        				}
+        				if(campfirecreating.contains(p)) {
+        					pme.setCancelled(true);
+        					TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Campfires.Create_Time.Cannot_Move")));
+        				}
+        			}
+        			 */
+            		}
             	}
-            }}
+            }
         }
     	@EventHandler
-    	public void onPlayerJoin(PlayerJoinEvent pje) {
+    	public void onPlayerJoin(final PlayerJoinEvent pje) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+	            
+	        	@Override
+	            public void run() {
+	        		if(latest)
+	        		{
+	        			api1.grant(pje.getPlayer());
+	        		}
+	         
+	            }
+	        }, 20L);
             if (!pje.getPlayer().hasPlayedBefore()) {
                 getConfig().addDefault("Players.Thirst." + pje.getPlayer().getUniqueId(), 0);
                 getConfig().addDefault("Players.RealName." + pje.getPlayer().getUniqueId(), "null");
@@ -858,6 +1024,7 @@ public class Main extends JavaPlugin implements Listener {
                 this.getConfig().set("Players.Thirst." + p.getUniqueId(), 0);
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Thirsty")));
                 TitleManager.sendActionBar(p, ChatColor.translateAlternateColorCodes('&', getConfig().getString("Server.Messages.Not Thirsty")));
+                api7.grant(p);
                 int CurrentFatigue = this.getConfig().getInt("Players.Fatigue." + p.getUniqueId());
                 this.getConfig().set("Players.Fatigue." + p.getUniqueId(), (CurrentFatigue -= 2));
             	if(pice.getItem().hasItemMeta()) {
@@ -971,6 +1138,10 @@ public class Main extends JavaPlugin implements Listener {
 	            if (ede.getCause() == EntityDamageEvent.DamageCause.FALL && player.getFallDistance() >= 7.0f) {
 	                getConfig().set("Players.BoneBroke." + player.getUniqueId(), true);
 	                player.sendMessage(ChatColor.RED + "You fell from a high place and broke your bones!");
+	                if(latest)
+	                {
+	                	api4.grant(player);
+	                }
 	                getConfig().set("Players.DefaultWalkSpeed." + player.getPlayer().getUniqueId(), 0.13);
 	                float WeightLeggings = getConfig().getInt("Players.LeggingsWeight." + player.getUniqueId());
 	                float WeightChestPlate = getConfig().getInt("Players.ChestplateWeight." + player.getUniqueId());
